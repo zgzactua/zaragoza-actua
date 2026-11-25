@@ -90,7 +90,6 @@ export async function onRequestPost({ request, env }) {
         { status: 400 }
     );
 }
-}
 
         if (
             titulo.length > 150 ||
