@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publicar un casting | Zaragoza Actúa</title>
+    <meta name="description" content="Publica tu casting o audición en Zaragoza Actúa.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="./logo-zaragoza-actua.png?v=2">
+</head>
+
+<body>
+
+    <header>
+        <div class="brand">
+    <img src="logo-zaragoza-actua.png" alt="Logo de Zaragoza Actúa">
+    <h1>ZARAGOZA ACTÚA</h1>
+    <p>El escenario empieza aquí.</p>
+</div>
+
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="castings.html">Castings</a>
+            <a href="actores.html">Actores</a>
+            <a href="talentos.html">Talentos audiovisuales</a>
+            <a href="publicar-casting.html">Publicar casting</a>
+            <a href="crear-perfil.html">Inscribirse</a>
+            <a href="inscribirse-talento.html">Inscripción audiovisual</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <section id="inicio">
+            <p>¿TIENES UN PROYECTO?</p>
+            <h2>Publica tu casting</h2>
+            <p>
+                Encuentra actores, actrices y profesionales
+                para dar vida a tu próxima producción.
+            </p>
+        </section>
+
+        <section>
+            <h2>Datos de la convocatoria</h2>
+            <p>Rellena la información de tu proyecto.</p>
+
+            <form class="casting-form" id="casting-form">
+
+                <label for="titulo">Título del proyecto *</label>
+                <input type="text" id="titulo" name="titulo"
+                       placeholder="Ej. Cortometraje independiente" required>
+
+                <label for="productora">Productora o responsable *</label>
+                <input type="text" id="productora" name="productora"
+                       placeholder="Nombre de la productora o responsable" required>
+
+                <label for="email">Correo electrónico de contacto *</label>
+                <input type="email" id="email" name="email"
+                       placeholder="correo@ejemplo.com" required>
+
+                <label for="tipo">Tipo de proyecto *</label>
+                <select id="tipo" name="tipo" required>
+                    <option value="">Selecciona una categoría</option>
+                    <option value="Cine">Cine</option>
+                    <option value="Teatro">Teatro</option>
+                    <option value="Audiovisual">Audiovisual</option>
+                    <option value="Publicidad">Publicidad</option>
+                    <option value="Doblaje">Doblaje</option>
+                    <option value="Otros">Otros</option>
+                </select>
+
+                <label for="ubicacion">Ubicación *</label>
+                <input type="text" id="ubicacion" name="ubicacion"
+                       placeholder="Ej. Zaragoza" required>
+
+                <label for="remuneracion">Remuneración *</label>
+                <select id="remuneracion" name="remuneracion" required>
+                    <option value="">Selecciona una opción</option>
+                    <option value="Remunerado">Remunerado</option>
+                    <option value="No remunerado">No remunerado</option>
+                    <option value="A convenir">A convenir</option>
+                </select>
+
+                <label for="descripcion">Descripción del proyecto *</label>
+                <textarea id="descripcion" name="descripcion"
+                          rows="6"
+                          placeholder="Explica de qué trata el proyecto..."
+                          required></textarea>
+
+                <label for="perfiles">¿Qué perfiles estás buscando? *</label>
+                <textarea id="perfiles" name="perfiles"
+                          rows="5"
+                          placeholder="Describe los personajes, edades adultas requeridas, especialidades o características profesionales..."
+                          required></textarea>
+
+                <label for="fecha">Fecha límite para inscribirse</label>
+                <input type="date" id="fecha_limite" name="fecha_limite">
+
+                <label for="enlace">Enlace externo (opcional)</label>
+                <input type="url" id="enlace_externo" name="enlace_externo"
+                       placeholder="https://...">
+
+                <p>
+                    * Los campos marcados son obligatorios.
+                </p>
+
+<div class="consentimiento-privacidad">
+    <label>
+        <input type="checkbox" name="consentimiento" value="si" required>
+        He leído y acepto la
+        <a href="politica-privacidad.html" target="_blank">
+            Política de privacidad
+        </a>.
+    </label>
+</div>
+
+
+                <button type="submit">Enviar convocatoria</button>
+                <p id="mensaje-formulario" role="status" aria-live="polite"></p>
+
+            </form>
+
+            <p>
+                Aviso: las convocatorias deberán revisarse antes
+                de publicarse en el directorio.
+            </p>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Zaragoza Actúa</p>
+        <p>El escenario empieza aquí.</p>
+    </footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const formulario = document.getElementById("casting-form");
+    const mensaje = document.getElementById("mensaje-formulario");
+
+    if (!formulario || !mensaje) return;
+
+    formulario.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+
+        const boton = formulario.querySelector('button[type="submit"]');
+        const datos = new FormData(formulario);
+
+        // Adaptamos los nombres de los campos al servidor.
+       if (!datos.has("fecha_limite")) {
+    datos.set("fecha_limite", datos.get("fecha") || "");
+}
+
+if (!datos.has("enlace_externo")) {
+    datos.set("enlace_externo", datos.get("enlace") || "");
+}
+
+        boton.disabled = true;
+        boton.textContent = "Publicando...";
+        mensaje.textContent = "Enviando tu convocatoria...";
+        mensaje.style.color = "#d7b875";
+
+        try {
+            const respuesta = await fetch("/api/castings", {
+                method: "POST",
+                body: datos
+            });
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(resultado.error || "No se pudo publicar el casting.");
+            }
+
+            mensaje.textContent = "¡Tu convocatoria se ha publicado correctamente!";
+            mensaje.style.color = "#8fcf9b";
+
+            formulario.reset();
+
+        } catch (error) {
+            mensaje.textContent = error.message || "Ha ocurrido un error. Inténtalo de nuevo.";
+            mensaje.style.color = "#ff9999";
+
+        } finally {
+            boton.disabled = false;
+            boton.textContent = "Enviar convocatoria";
+        }
+    });
+
+});
+</script>
+
+
+</body>
+</html>
