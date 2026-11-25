@@ -14,6 +14,7 @@ export async function onRequestGet({ env }) {
                 enlace_externo,
                 fecha_publicacion
             FROM castings
+            WHERE estado = 'aprobado'
             ORDER BY id DESC
         `).all();
 
