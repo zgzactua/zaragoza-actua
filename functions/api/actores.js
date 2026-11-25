@@ -12,6 +12,7 @@ export async function onRequestGet({ env }) {
                 foto,
                 fecha_publicacion
             FROM actores
+            WHERE estado = 'aprobado'
             ORDER BY id DESC
         `).all();
 
