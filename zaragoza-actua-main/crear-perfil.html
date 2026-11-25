@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear perfil | Zaragoza Actúa</title>
+    <meta name="description" content="Inscríbete en el directorio artístico de Zaragoza Actúa.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="./logo-zaragoza-actua.png?v=2">
+</head>
+
+<body>
+
+    <header>
+        <div class="brand">
+    <img src="logo-zaragoza-actua.png" alt="Logo de Zaragoza Actúa">
+    <h1>ZARAGOZA ACTÚA</h1>
+    <p>El escenario empieza aquí.</p>
+</div>
+
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="castings.html">Castings</a>
+            <a href="actores.html">Actores</a>
+            <a href="talentos.html">Talentos audiovisuales</a>
+            <a href="publicar-casting.html">Publicar casting</a>
+            <a href="crear-perfil.html">Inscribirse</a>
+            <a href="inscribirse-talento.html">Inscripción audiovisual</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <section id="inicio">
+            <p>FORMA PARTE DE NUESTRA COMUNIDAD</p>
+            <h2>Crea tu perfil artístico</h2>
+            <p>
+                Preséntate, comparte tu experiencia y permite
+                que nuevos proyectos descubran tu talento.
+            </p>
+        </section>
+
+        <section>
+            <h2>Datos personales y artísticos</h2>
+            <p>Cuéntanos un poco sobre ti y tu trayectoria.</p>
+
+            <form class="casting-form">
+
+                <label for="nombre">Nombre artístico o profesional *</label>
+                <input type="text" id="nombre" name="nombre"
+                       placeholder="¿Cómo quieres aparecer en el directorio?" required>
+
+                <label for="email">Correo electrónico *</label>
+                <input type="email" id="email" name="email"
+                       placeholder="correo@ejemplo.com" required>
+
+
+                <label for="especialidad">Especialidad principal *</label>
+                <select id="especialidad" name="especialidad" required>
+                    <option value="">Selecciona una especialidad</option>
+                    <option value="Teatro">Teatro</option>
+                    <option value="Cine">Cine</option>
+                    <option value="Televisión">Televisión</option>
+                    <option value="Doblaje">Doblaje</option>
+                    <option value="Publicidad">Publicidad</option>
+                    <option value="Musical">Teatro musical</option>
+                    <option value="Otros">Otras</option>
+                </select>
+
+                <label for="experiencia">Experiencia</label>
+                <select id="experiencia" name="experiencia">
+                    <option value="">Selecciona una opción</option>
+                    <option value="Sin experiencia">Sin experiencia profesional</option>
+                    <option value="Formación">Con formación artística</option>
+                    <option value="Experiencia inicial">Experiencia inicial</option>
+                    <option value="Experiencia profesional">Experiencia profesional</option>
+                </select>
+
+                <label for="presentacion">Presentación personal *</label>
+                <textarea id="presentacion" name="presentacion"
+                          rows="6"
+                          placeholder="Cuéntanos quién eres, qué te interesa y qué puedes aportar..."
+                          required></textarea>
+
+                <label for="portfolio">Enlace a portfolio o videobook</label>
+                <input type="url" id="portfolio" name="portfolio"
+                       placeholder="https://...">
+
+                <label for="foto">Enlace a fotografía o perfil profesional</label>
+                <input type="url" id="foto" name="foto"
+                       placeholder="https://...">
+
+                <label>
+                    <input type="checkbox" name="privacidad" required>
+                    Acepto que los datos de mi perfil sean revisados
+                    para su posible publicación en Zaragoza Actúa.
+                </label>
+
+                <p>* Los campos marcados son obligatorios.</p>
+
+<div class="consentimiento-privacidad">
+    <label>
+        <input type="checkbox" name="consentimiento" value="si" required>
+        He leído y acepto la
+        <a href="politica-privacidad.html" target="_blank">
+            Política de privacidad
+        </a>.
+    </label>
+</div>
+
+
+                <button type="submit">Enviar mi perfil</button>
+
+            </form>
+
+            <p>
+                Los perfiles enviados deberán revisarse antes
+                de aparecer públicamente en el directorio.
+            </p>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Zaragoza Actúa</p>
+        <p>El escenario empieza aquí.</p>
+    </footer>
+
+</body>
+</html>
