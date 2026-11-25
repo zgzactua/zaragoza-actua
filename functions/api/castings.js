@@ -6,7 +6,6 @@ export async function onRequestGet({ env }) {
                 id,
                 titulo,
                 tipo,
-                ubicacion,
                 remuneracion,
                 descripcion,
                 perfiles,
