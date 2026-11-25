@@ -1291,3 +1291,39 @@ footer a:hover {
     color: #d7b875;
     text-decoration: underline;
 }
+/* CORRECCIÓN DE DESBORDAMIENTO EN MÓVILES */
+
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+}
+
+main,
+header,
+footer,
+section {
+    max-width: 100%;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media (max-width: 600px) {
+    #inicio {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .secciones-grid,
+    #lista-castings {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sobre-proyecto {
+        max-width: 100%;
+    }
+}
