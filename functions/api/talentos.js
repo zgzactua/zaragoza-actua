@@ -12,6 +12,7 @@ export async function onRequestGet({ env }) {
                 web,
                 fecha_publicacion
             FROM talentos
+            WHERE estado = 'aprobado'
             ORDER BY id DESC
         `).all();
 
