@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración | Zaragoza Actúa</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .admin-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .admin-login {
+            max-width: 420px;
+            margin: 70px auto;
+            padding: 30px;
+            background: #f5ead5;
+            color: #321b1b;
+            border: 2px solid #a77b38;
+            border-radius: 8px;
+        }
+
+        .admin-login input {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            box-sizing: border-box;
+        }
+
+        .admin-login button,
+        .admin-card button,
+        .logout-button {
+            padding: 10px 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .admin-login button {
+            width: 100%;
+            background: #57252b;
+            color: white;
+        }
+
+        .admin-section {
+            margin: 35px 0;
+        }
+
+        .admin-card {
+            background: #f5ead5;
+            color: #321b1b;
+            border: 1px solid #a77b38;
+            border-radius: 6px;
+            padding: 18px;
+            margin: 15px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .admin-card p {
+            white-space: pre-wrap;
+        }
+
+        .approve-button {
+            background: #315b3c;
+            color: white;
+            margin-right: 8px;
+        }
+
+        .reject-button {
+            background: #852d35;
+            color: white;
+        }
+
+        .logout-button {
+            background: #57252b;
+            color: white;
+        }
+
+        .admin-message {
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="brand">
+            <img src="logo-zaragoza-actua.png"
+                 alt="Logo de Zaragoza Actúa">
+            <h1>ZARAGOZA ACTÚA</h1>
+            <p>Administración privada</p>
+        </div>
+    </header>
+
+    <main class="admin-container">
+
+        <section id="login-section" class="admin-login">
+            <h2>Acceso privado</h2>
+            <p>Introduce tu contraseña de administración.</p>
+
+            <form id="login-form">
+                <label for="admin-password">Contraseña</label>
+                <input
+                    type="password"
+                    id="admin-password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit">Iniciar sesión</button>
+            </form>
+
+            <p id="login-message" class="admin-message"
+               role="alert"></p>
+        </section>
+
+        <section id="panel-section" hidden>
+            <h2>Panel de administración</h2>
+            <p>Desde aquí puedes revisar las publicaciones pendientes.</p>
+
+            <button id="logout-button" class="logout-button">
+                Cerrar sesión
+            </button>
+
+            <p id="panel-message" class="admin-message"
+               role="status"></p>
+
+            <section class="admin-section">
+                <h2>Castings pendientes</h2>
+                <div id="castings-list">Cargando...</div>
+            </section>
+
+            <section class="admin-section">
+                <h2>Actores pendientes</h2>
+                <div id="actores-list">Cargando...</div>
+            </section>
+
+            <section class="admin-section">
+                <h2>Talentos pendientes</h2>
+                <div id="talentos-list">Cargando...</div>
+            </section>
+        </section>
+
+    </main>
+
+    <script>
+        const loginSection = document.getElementById("login-section");
+        const panelSection = document.getElementById("panel-section");
+        const loginForm = document.getElementById("login-form");
+        const loginMessage = document.getElementById("login-message");
+        const panelMessage = document.getElementById("panel-message");
+
+        const secciones = [
+            { nombre: "castings", titulo: "casting" },
+            { nombre: "actores", titulo: "perfil de actor" },
+            { nombre: "talentos", titulo: "perfil de talento" }
+        ];
+
+        async function cargarPublicaciones() {
+            panelMessage.textContent = "Cargando publicaciones...";
+
+            try {
+                for (const seccion of secciones) {
+                    const respuesta = await fetch(
+                        `/api/admin/${seccion.nombre}`,
+                        { credentials: "same-origin" }
+                    );
+
+                    if (respuesta.status === 401) {
+                        mostrarLogin();
+                        return;
+                    }
+
+                    if (!respuesta.ok) {
+                        throw new Error("No se pudieron cargar las publicaciones.");
+                    }
+
+                    const datos = await respuesta.json();
+
+                    mostrarPublicaciones(
+                        `${seccion.nombre}-list`,
+                        datos,
+                        seccion.nombre,
+                        seccion.titulo
+                    );
+                }
+
+                panelMessage.textContent =
+                    "Publicaciones cargadas correctamente.";
+
+            } catch (error) {
+                panelMessage.textContent = error.message;
+            }
+        }
+
+        function mostrarPublicaciones(contenedorId, datos, tabla, tipo) {
+            const contenedor = document.getElementById(contenedorId);
+            contenedor.replaceChildren();
+
+            if (!datos.length) {
+                contenedor.textContent = "No hay publicaciones pendientes.";
+                return;
+            }
+
+            datos.forEach(publicacion => {
+                const tarjeta = document.createElement("article");
+                tarjeta.className = "admin-card";
+
+                Object.entries(publicacion).forEach(([campo, valor]) => {
+                    if (campo === "estado" || valor === null || valor === "") {
+                        return;
+                    }
+
+                    const parrafo = document.createElement("p");
+                    const etiqueta = document.createElement("strong");
+
+                    etiqueta.textContent = campo + ": ";
+                    parrafo.appendChild(etiqueta);
+                    parrafo.appendChild(
+                        document.createTextNode(String(valor))
+                    );
+
+                    tarjeta.appendChild(parrafo);
+                });
+
+                const aprobar = document.createElement("button");
+                aprobar.className = "approve-button";
+                aprobar.textContent = "Aprobar";
+
+                aprobar.addEventListener("click", () => {
+                    cambiarEstado(publicacion.id, "aprobado", tabla, tarjeta);
+                });
+
+                const rechazar = document.createElement("button");
+                rechazar.className = "reject-button";
+                rechazar.textContent = "Rechazar";
+
+                rechazar.addEventListener("click", () => {
+                    cambiarEstado(publicacion.id, "rechazado", tabla, tarjeta);
+                });
+
+                tarjeta.appendChild(aprobar);
+                tarjeta.appendChild(rechazar);
+                contenedor.appendChild(tarjeta);
+            });
+        }
+
+        async function cambiarEstado(id, estado, tabla, tarjeta) {
+            const accion = estado === "aprobado" ? "aprobar" : "rechazar";
+
+            if (!confirm(`¿Seguro que quieres ${accion} esta publicación?`)) {
+                return;
+            }
+
+            try {
+                const respuesta = await fetch(`/api/admin/${tabla}`, {
+                    method: "PATCH",
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ id, estado })
+                });
+
+                const resultado = await respuesta.json();
+
+                if (!respuesta.ok) {
+                    throw new Error(resultado.error || "No se pudo actualizar.");
+                }
+
+                tarjeta.remove();
+                panelMessage.textContent =
+                    `Publicación ${estado === "aprobado" ? "aprobada" : "rechazada"}.`;
+
+                const contenedor = document.getElementById(`${tabla}-list`);
+
+                if (!contenedor.querySelector(".admin-card")) {
+                    contenedor.textContent = "No hay publicaciones pendientes.";
+                }
+
+            } catch (error) {
+                panelMessage.textContent = error.message;
+            }
+        }
+
+        function mostrarPanel() {
+            loginSection.hidden = true;
+            panelSection.hidden = false;
+            cargarPublicaciones();
+        }
+
+        function mostrarLogin() {
+            panelSection.hidden = true;
+            loginSection.hidden = false;
+            loginForm.reset();
+        }
+
+        loginForm.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+
+            loginMessage.textContent = "Comprobando contraseña...";
+
+            const password = document.getElementById("admin-password").value;
+
+            try {
+                const respuesta = await fetch("/api/admin/login", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ password })
+                });
+
+                const resultado = await respuesta.json();
+
+                if (!respuesta.ok) {
+                    throw new Error(resultado.error || "Error al iniciar sesión.");
+                }
+
+                loginForm.reset();
+                loginMessage.textContent = "";
+                mostrarPanel();
+
+            } catch (error) {
+                loginMessage.textContent = error.message;
+            }
+        });
+
+        document.getElementById("logout-button")
+            .addEventListener("click", async () => {
+                try {
+                    const respuesta = await fetch("/api/admin/login", {
+                        method: "DELETE",
+                        credentials: "same-origin"
+                    });
+
+                    if (!respuesta.ok) {
+                        throw new Error("No se pudo cerrar la sesión.");
+                    }
+
+                    mostrarLogin();
+                    loginMessage.textContent = "Has cerrado sesión.";
+
+                } catch (error) {
+                    panelMessage.textContent = error.message;
+                }
+            });
+
+        // Comprueba si ya existe una sesión válida.
+        async function comprobarSesion() {
+            try {
+                const respuesta = await fetch("/api/admin/castings", {
+                    credentials: "same-origin"
+                });
+
+                if (respuesta.ok) {
+                    mostrarPanel();
+                } else {
+                    mostrarLogin();
+                }
+            } catch (error) {
+                mostrarLogin();
+                loginMessage.textContent =
+                    "No se pudo conectar con el servidor.";
+            }
+        }
+
+        comprobarSesion();
+    </script>
+
+</body>
+</html>
