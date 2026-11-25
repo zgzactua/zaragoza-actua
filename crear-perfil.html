@@ -45,7 +45,7 @@
             <h2>Datos personales y artísticos</h2>
             <p>Cuéntanos un poco sobre ti y tu trayectoria.</p>
 
-            <form class="casting-form">
+            <form class="casting-form" id="actor-form"></form>
 
                 <label for="nombre">Nombre artístico o profesional *</label>
                 <input type="text" id="nombre" name="nombre"
@@ -92,11 +92,17 @@
                 <input type="url" id="foto" name="foto"
                        placeholder="https://...">
 
-                <label>
-                    <input type="checkbox" name="privacidad" required>
-                    Acepto que los datos de mi perfil sean revisados
-                    para su posible publicación en Zaragoza Actúa.
-                </label>
+                <div class="consentimiento-privacidad">
+    <label>
+        <input type="checkbox" name="consentimiento" value="si" required>
+        He leído y acepto la
+        <a href="politica-privacidad.html" target="_blank">
+            Política de privacidad
+        </a>
+        y autorizo la publicación de los datos de mi perfil.
+    </label>
+    <p id="mensaje-perfil" role="status" aria-live="polite"></p>
+</div>
 
                 <p>* Los campos marcados son obligatorios.</p>
 

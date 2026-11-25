@@ -45,7 +45,7 @@
             <h2>Datos profesionales</h2>
             <p>Cuéntanos qué sabes hacer y en qué proyectos te gustaría participar.</p>
 
-            <form class="casting-form">
+            <form class="casting-form" id="talento-form">
 
                 <label for="nombre">Nombre profesional *</label>
                 <input type="text" id="nombre" name="nombre"
@@ -114,6 +114,7 @@
                 <button type="submit">Enviar mi perfil</button>
 
             </form>
+            <p id="mensaje-talento" role="status" aria-live="polite"></p>
 
             <p>
                 Los perfiles enviados deberán revisarse antes
@@ -127,6 +128,57 @@
         <p>© 2026 Zaragoza Actúa</p>
         <p>El escenario empieza aquí.</p>
     </footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const formulario = document.getElementById("talento-form");
+    const mensaje = document.getElementById("mensaje-talento");
+
+    if (!formulario || !mensaje) return;
+
+    formulario.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+
+        const boton = formulario.querySelector('button[type="submit"]');
+
+        boton.disabled = true;
+        boton.textContent = "Enviando...";
+        mensaje.textContent = "Estamos enviando tu perfil...";
+        mensaje.style.color = "#d7b875";
+
+        try {
+            const respuesta = await fetch("/api/talentos", {
+                method: "POST",
+                body: new FormData(formulario)
+            });
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    resultado.error || "No se pudo enviar el perfil."
+                );
+            }
+
+            mensaje.textContent =
+                "¡Tu perfil se ha enviado correctamente! Será revisado antes de publicarse.";
+            mensaje.style.color = "#8fcf9b";
+
+            formulario.reset();
+
+        } catch (error) {
+            mensaje.textContent =
+                error.message || "Ha ocurrido un error. Inténtalo de nuevo.";
+            mensaje.style.color = "#ff9999";
+
+        } finally {
+            boton.disabled = false;
+            boton.textContent = "Enviar mi perfil";
+        }
+    });
+});
+</script>
+
 
 </body>
 </html>
