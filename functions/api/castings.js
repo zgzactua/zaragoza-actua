@@ -83,7 +83,7 @@ export async function onRequestPost({ request, env }) {
             );
         }
 
-        if (!consentimiento !== "si") {
+        if (consentimiento !== "si") {
             return Response.json(
                 { error: "Debes aceptar la política de privacidad." },
                 { status: 400 }
