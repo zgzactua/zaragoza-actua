@@ -45,81 +45,72 @@
             <h2>Datos personales y artísticos</h2>
             <p>Cuéntanos un poco sobre ti y tu trayectoria.</p>
 
-            <form class="casting-form" id="actor-form"></form>
+            
+<form class="casting-form" id="actor-form">
 
-                <label for="nombre">Nombre artístico o profesional *</label>
-                <input type="text" id="nombre" name="nombre"
-                       placeholder="¿Cómo quieres aparecer en el directorio?" required>
+    <label for="nombre">Nombre artístico o profesional *</label>
+    <input type="text" id="nombre" name="nombre"
+           placeholder="¿Cómo quieres aparecer en el directorio?" required>
 
-                <label for="email">Correo electrónico *</label>
-                <input type="email" id="email" name="email"
-                       placeholder="correo@ejemplo.com" required>
+    <label for="email">Correo electrónico *</label>
+    <input type="email" id="email" name="email"
+           placeholder="correo@ejemplo.com" required>
 
+    <label for="especialidad">Especialidad principal *</label>
+    <select id="especialidad" name="especialidad" required>
+        <option value="">Selecciona una especialidad</option>
+        <option value="Teatro">Teatro</option>
+        <option value="Cine">Cine</option>
+        <option value="Televisión">Televisión</option>
+        <option value="Doblaje">Doblaje</option>
+        <option value="Publicidad">Publicidad</option>
+        <option value="Musical">Teatro musical</option>
+        <option value="Todo">Todo</option>
+        <option value="Otros">Otras</option>
+    </select>
 
-                <label for="especialidad">Especialidad principal *</label>
-                <select id="especialidad" name="especialidad" required>
-                    <option value="">Selecciona una especialidad</option>
-                    <option value="Teatro">Teatro</option>
-                    <option value="Cine">Cine</option>
-                    <option value="Televisión">Televisión</option>
-                    <option value="Doblaje">Doblaje</option>
-                    <option value="Publicidad">Publicidad</option>
-                    <option value="Musical">Teatro musical</option>
-                    <option value="Todo">Todo</option>
-                    <option value="Otros">Otras</option>
-                </select>
+    <label for="experiencia">Experiencia</label>
+    <select id="experiencia" name="experiencia">
+        <option value="">Selecciona una opción</option>
+        <option value="Sin experiencia">Sin experiencia profesional</option>
+        <option value="Formación">Con formación artística</option>
+        <option value="Experiencia inicial">Experiencia inicial</option>
+        <option value="Experiencia profesional">Experiencia profesional</option>
+    </select>
 
-                <label for="experiencia">Experiencia</label>
-                <select id="experiencia" name="experiencia">
-                    <option value="">Selecciona una opción</option>
-                    <option value="Sin experiencia">Sin experiencia profesional</option>
-                    <option value="Formación">Con formación artística</option>
-                    <option value="Experiencia inicial">Experiencia inicial</option>
-                    <option value="Experiencia profesional">Experiencia profesional</option>
-                </select>
+    <label for="presentacion">Presentación personal *</label>
+    <textarea id="presentacion" name="presentacion"
+              rows="6"
+              placeholder="Cuéntanos quién eres, qué te interesa y qué puedes aportar..."
+              required></textarea>
 
-                <label for="presentacion">Presentación personal *</label>
-                <textarea id="presentacion" name="presentacion"
-                          rows="6"
-                          placeholder="Cuéntanos quién eres, qué te interesa y qué puedes aportar..."
-                          required></textarea>
+    <label for="portfolio">Enlace a portfolio o videobook</label>
+    <input type="url" id="portfolio" name="portfolio"
+           placeholder="https://...">
 
-                <label for="portfolio">Enlace a portfolio o videobook</label>
-                <input type="url" id="portfolio" name="portfolio"
-                       placeholder="https://...">
+    <label for="foto">Enlace a fotografía o perfil profesional</label>
+    <input type="url" id="foto" name="foto"
+           placeholder="https://...">
 
-                <label for="foto">Enlace a fotografía o perfil profesional</label>
-                <input type="url" id="foto" name="foto"
-                       placeholder="https://...">
+    <div class="consentimiento-privacidad">
+        <label>
+            <input type="checkbox" name="consentimiento" value="si" required>
+            He leído y acepto la
+            <a href="politica-privacidad.html" target="_blank">
+                Política de privacidad
+            </a>
+            y autorizo la publicación de los datos de mi perfil.
+        </label>
+    </div>
 
-                <div class="consentimiento-privacidad">
-    <label>
-        <input type="checkbox" name="consentimiento" value="si" required>
-        He leído y acepto la
-        <a href="politica-privacidad.html" target="_blank">
-            Política de privacidad
-        </a>
-        y autorizo la publicación de los datos de mi perfil.
-    </label>
+    <p>* Los campos marcados son obligatorios.</p>
+
+    <button type="submit">Enviar mi perfil</button>
+
     <p id="mensaje-perfil" role="status" aria-live="polite"></p>
-</div>
 
-                <p>* Los campos marcados son obligatorios.</p>
+</form>
 
-<div class="consentimiento-privacidad">
-    <label>
-        <input type="checkbox" name="consentimiento" value="si" required>
-        He leído y acepto la
-        <a href="politica-privacidad.html" target="_blank">
-            Política de privacidad
-        </a>.
-    </label>
-</div>
-
-
-                <button type="submit">Enviar mi perfil</button>
-
-            </form>
 
             <p>
                 Los perfiles enviados deberán revisarse antes
