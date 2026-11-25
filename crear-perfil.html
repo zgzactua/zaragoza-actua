@@ -124,6 +124,54 @@
         <p>© 2026 Zaragoza Actúa</p>
         <p>El escenario empieza aquí.</p>
     </footer>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
+    const formulario = document.getElementById("actor-form");
+    const mensaje = document.getElementById("mensaje-perfil");
+
+    formulario.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        const boton = formulario.querySelector('button[type="submit"]');
+
+        boton.disabled = true;
+        boton.textContent = "Enviando...";
+        mensaje.textContent = "";
+
+        try {
+            const respuesta = await fetch("/api/actores", {
+                method: "POST",
+                body: new FormData(formulario)
+            });
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(resultado.error || "No se pudo enviar el perfil.");
+            }
+
+            mensaje.textContent =
+                "¡Perfil enviado correctamente! Revisaremos tu solicitud antes de publicarla.";
+
+            formulario.reset();
+
+        } catch (error) {
+
+            mensaje.textContent =
+                error.message || "Ha ocurrido un error al enviar el perfil.";
+
+        } finally {
+
+            boton.disabled = false;
+            boton.textContent = "Enviar mi perfil";
+
+        }
+
+    });
+
+});
+</script>
 </body>
 </html>
