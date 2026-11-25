@@ -84,11 +84,14 @@ export async function onRequestPost({ request, env }) {
         }
 
         if (consentimiento !== "si") {
-            return Response.json(
-                { error: "Debes aceptar la política de privacidad." },
-                { status: 400 }
-            );
-        }
+    return Response.json(
+        {
+            error: "Error de consentimiento. Valor recibido: " +
+                JSON.stringify(consentimiento)
+        },
+        { status: 400 }
+    );
+}
 
         if (
             titulo.length > 150 ||
