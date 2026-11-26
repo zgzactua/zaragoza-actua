@@ -64,6 +64,49 @@
         <p>© 2026 Zaragoza Actúa</p>
         <p>El escenario empieza aquí.</p>
     </footer>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
 
+    const contenedor = document.getElementById("lista-actores");
+
+    try {
+        const respuesta = await fetch("/api/actores");
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudieron cargar los perfiles.");
+        }
+
+        const perfiles = await respuesta.json();
+
+        contenedor.innerHTML = "";
+
+        if (perfiles.length === 0) {
+            contenedor.innerHTML = "<p>Aún no hay perfiles publicados.</p>";
+            return;
+        }
+
+        perfiles.forEach(perfil => {
+
+            const tarjeta = document.createElement("article");
+            tarjeta.className = "casting-card";
+
+            tarjeta.innerHTML = `
+                <h3>${perfil.nombre}</h3>
+                <p><strong>Especialidad:</strong> ${perfil.especialidad || "No especificada"}</p>
+                <p><strong>Experiencia:</strong> ${perfil.experiencia || "No especificada"}</p>
+                <p>${perfil.presentacion}</p>
+            `;
+
+            contenedor.appendChild(tarjeta);
+
+        });
+
+    } catch (error) {
+        contenedor.innerHTML = "<p>No se han podido cargar los perfiles. Inténtalo más tarde.</p>";
+        console.error(error);
+    }
+
+});
+</script>
 </body>
 </html>
