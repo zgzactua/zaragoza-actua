@@ -69,24 +69,33 @@ export async function onRequestGet({ request, env }) {
     }
 
     try {
-        const { results } = await env.DB.prepare(`
-            SELECT *
-            FROM castings
-            WHERE estado IN 'pendiente'
-            ORDER BY id DESC
-        `).all();
+    try {
+    const estado = new URL(request.url).searchParams.get("estado") || "pendiente";
 
-        return Response.json(results, {
-            headers: { "Cache-Control": "no-store" }
-        });
-
-    } catch (error) {
+    if (!["pendiente", "aprobado"].includes(estado)) {
         return Response.json(
-            { error: "No se pudieron cargar los castings." },
-            { status: 500 }
+            { error: "Estado no válido." },
+            { status: 400 }
         );
     }
-}
+
+    const { results } = await env.DB.prepare(`
+        SELECT *
+        FROM castings
+        WHERE estado = ?
+        ORDER BY id DESC
+    `).bind(estado).all();
+
+    return Response.json(results, {
+        headers: { "Cache-Control": "no-store" }
+    });
+
+} catch (error) {
+    return Response.json(
+        { error: "No se pudieron cargar los castings." },
+        { status: 500 }
+    );
+    }
 
 export async function onRequestPatch({ request, env }) {
     if (!comprobarOrigen(request)) {
