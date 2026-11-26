@@ -205,14 +205,7 @@
 
         
 function mostrarPublicaciones(contenedorId, datos, tabla, tipo) {
-    const contenedor = document.getElementById(contenedorId);
-    contenedor.replaceChildren();
-
-    if (!datos.length) {
-        contenedor.textContent = "No hay publicaciones pendientes ni aprobadas.";
-        return;
-    }
-
+    async function cambiarEstado(id, estado, tabla, tarjeta, accionPersonalizada = null) {
     datos.forEach(publicacion => {
         const tarjeta = document.createElement("article");
         tarjeta.className = "admin-card";
