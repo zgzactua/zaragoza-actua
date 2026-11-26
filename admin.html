@@ -344,117 +344,317 @@ function mostrarPublicaciones(contenedorId, datos, tabla, tipo) {
             credentials: "same-origin",
             headers: {
                 "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ id, estado })
-        });
 
-        const resultado = await respuesta.json();
+<script>
+    const loginSection = document.getElementById("login-section");
+    const panelSection = document.getElementById("panel-section");
+    const loginForm = document.getElementById("login-form");
+    const loginMessage = document.getElementById("login-message");
+    const panelMessage = document.getElementById("panel-message");
 
-        if (!respuesta.ok) {
-            throw new Error(resultado.error || "No se pudo actualizar.");
-        }
+    const secciones = [
+        { nombre: "castings", titulo: "casting" },
+        { nombre: "actores", titulo: "perfil de actor" },
+        { nombre: "talentos", titulo: "perfil de talento" }
+    ];
 
-        tarjeta.remove();
+    async function cargarPublicaciones() {
+        panelMessage.textContent = "Cargando publicaciones...";
 
-        panelMessage.textContent = accion === "retirar"
-            ? "Publicación retirada de la web. El registro se conserva en la base de datos."
-            : `Publicación ${estado === "aprobado" ? "aprobada" : "rechazada"}.`;
+        try {
+            for (const seccion of secciones) {
+                const [respuestaPendientes, respuestaAprobadas] =
+                    await Promise.all([
+                        fetch(`/api/admin/${seccion.nombre}`, {
+                            credentials: "same-origin"
+                        }),
+                        fetch(`/api/admin/${seccion.nombre}?estado=aprobado`, {
+                            credentials: "same-origin"
+                        })
+                    ]);
 
-        const contenedor = document.getElementById(`${tabla}-list`);
-
-        if (!contenedor.querySelector(".admin-card")) {
-            contenedor.textContent = "No hay publicaciones pendientes ni aprobadas.";
-        }
-
-    } catch (error) {
-        panelMessage.textContent = error.message;
-    }
-}
-        function mostrarPanel() {
-            loginSection.hidden = true;
-            panelSection.hidden = false;
-            cargarPublicaciones();
-        }
-
-        function mostrarLogin() {
-            panelSection.hidden = true;
-            loginSection.hidden = false;
-            loginForm.reset();
-        }
-
-        loginForm.addEventListener("submit", async (evento) => {
-            evento.preventDefault();
-
-            loginMessage.textContent = "Comprobando contraseña...";
-
-            const password = document.getElementById("admin-password").value;
-
-            try {
-                const respuesta = await fetch("/api/admin/login", {
-                    method: "POST",
-                    credentials: "same-origin",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ password })
-                });
-
-                const resultado = await respuesta.json();
-
-                if (!respuesta.ok) {
-                    throw new Error(resultado.error || "Error al iniciar sesión.");
-                }
-
-                loginForm.reset();
-                loginMessage.textContent = "";
-                mostrarPanel();
-
-            } catch (error) {
-                loginMessage.textContent = error.message;
-            }
-        });
-
-        document.getElementById("logout-button")
-            .addEventListener("click", async () => {
-                try {
-                    const respuesta = await fetch("/api/admin/login", {
-                        method: "DELETE",
-                        credentials: "same-origin"
-                    });
-
-                    if (!respuesta.ok) {
-                        throw new Error("No se pudo cerrar la sesión.");
-                    }
-
+                if (
+                    respuestaPendientes.status === 401 ||
+                    respuestaAprobadas.status === 401
+                ) {
                     mostrarLogin();
-                    loginMessage.textContent = "Has cerrado sesión.";
-
-                } catch (error) {
-                    panelMessage.textContent = error.message;
+                    return;
                 }
+
+                if (!respuestaPendientes.ok || !respuestaAprobadas.ok) {
+                    throw new Error(
+                        "No se pudieron cargar las publicaciones."
+                    );
+                }
+
+                const pendientes = await respuestaPendientes.json();
+                const aprobadas = await respuestaAprobadas.json();
+
+                mostrarPublicaciones(
+                    `${seccion.nombre}-list`,
+                    pendientes,
+                    seccion.nombre,
+                    "pendiente"
+                );
+
+                mostrarPublicaciones(
+                    `${seccion.nombre}-aprobados-list`,
+                    aprobadas,
+                    seccion.nombre,
+                    "aprobado"
+                );
+            }
+
+            panelMessage.textContent =
+                "Publicaciones cargadas correctamente.";
+
+        } catch (error) {
+            panelMessage.textContent = error.message;
+        }
+    }
+
+    function mostrarPublicaciones(contenedorId, datos, tabla, estado) {
+        const contenedor = document.getElementById(contenedorId);
+        contenedor.replaceChildren();
+
+        if (!datos.length) {
+            contenedor.textContent = estado === "pendiente"
+                ? "No hay publicaciones pendientes."
+                : "No hay publicaciones aprobadas.";
+            return;
+        }
+
+        datos.forEach(publicacion => {
+            const tarjeta = document.createElement("article");
+            tarjeta.className = "admin-card";
+
+            Object.entries(publicacion).forEach(([campo, valor]) => {
+                if (
+                    campo === "estado" ||
+                    valor === null ||
+                    valor === ""
+                ) {
+                    return;
+                }
+
+                const parrafo = document.createElement("p");
+                const etiqueta = document.createElement("strong");
+
+                etiqueta.textContent = campo + ": ";
+                parrafo.appendChild(etiqueta);
+                parrafo.appendChild(
+                    document.createTextNode(String(valor))
+                );
+
+                tarjeta.appendChild(parrafo);
             });
 
-        // Comprueba si ya existe una sesión válida.
-        async function comprobarSesion() {
+            const estadoTexto = document.createElement("p");
+            estadoTexto.textContent = "Estado: " + publicacion.estado;
+            tarjeta.appendChild(estadoTexto);
+
+            if (estado === "pendiente") {
+                const aprobar = document.createElement("button");
+                aprobar.className = "approve-button";
+                aprobar.textContent = "Aprobar";
+
+                aprobar.addEventListener("click", () => {
+                    cambiarEstado(
+                        publicacion.id,
+                        "aprobado",
+                        tabla,
+                        tarjeta,
+                        "pendiente"
+                    );
+                });
+
+                const rechazar = document.createElement("button");
+                rechazar.className = "reject-button";
+                rechazar.textContent = "Rechazar";
+
+                rechazar.addEventListener("click", () => {
+                    cambiarEstado(
+                        publicacion.id,
+                        "rechazado",
+                        tabla,
+                        tarjeta,
+                        "pendiente"
+                    );
+                });
+
+                tarjeta.append(aprobar, rechazar);
+
+            } else {
+                const retirar = document.createElement("button");
+                retirar.className = "reject-button";
+                retirar.textContent = "Retirar publicación";
+
+                retirar.addEventListener("click", () => {
+                    cambiarEstado(
+                        publicacion.id,
+                        "rechazado",
+                        tabla,
+                        tarjeta,
+                        "aprobado"
+                    );
+                });
+
+                tarjeta.appendChild(retirar);
+            }
+
+            contenedor.appendChild(tarjeta);
+        });
+    }
+
+    async function cambiarEstado(id, nuevoEstado, tabla, tarjeta, estadoActual) {
+        const accion = estadoActual === "aprobado"
+            ? "retirar esta publicación de la web"
+            : nuevoEstado === "aprobado"
+                ? "aprobar esta publicación"
+                : "rechazar esta publicación";
+
+        if (!confirm(`¿Seguro que quieres ${accion}?`)) {
+            return;
+        }
+
+        try {
+            const respuesta = await fetch(`/api/admin/${tabla}`, {
+                method: "PATCH",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id,
+                    estado: nuevoEstado,
+                    accion: estadoActual === "aprobado" ? "retirar" : "revisar"
+                })
+            });
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    resultado.error || "No se pudo actualizar la publicación."
+                );
+            }
+
+            tarjeta.remove();
+
+            panelMessage.textContent = estadoActual === "aprobado"
+                ? "Publicación retirada de la web. El registro se conserva."
+                : nuevoEstado === "aprobado"
+                    ? "Publicación aprobada correctamente."
+                    : "Publicación rechazada correctamente.";
+
+            const contenedor = document.getElementById(
+                estadoActual === "aprobado"
+                    ? `${tabla}-aprobados-list`
+                    : `${tabla}-list`
+            );
+
+            if (!contenedor.querySelector(".admin-card")) {
+                contenedor.textContent = estadoActual === "aprobado"
+                    ? "No hay publicaciones aprobadas."
+                    : "No hay publicaciones pendientes.";
+            }
+
+            if (estadoActual === "pendiente" && nuevoEstado === "aprobado") {
+                await cargarPublicaciones();
+            }
+
+        } catch (error) {
+            panelMessage.textContent = error.message;
+        }
+    }
+
+    function mostrarPanel() {
+        loginSection.hidden = true;
+        panelSection.hidden = false;
+        cargarPublicaciones();
+    }
+
+    function mostrarLogin() {
+        panelSection.hidden = true;
+        loginSection.hidden = false;
+        loginForm.reset();
+    }
+
+    loginForm.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+
+        loginMessage.textContent = "Comprobando contraseña...";
+
+        const password = document.getElementById("admin-password").value;
+
+        try {
+            const respuesta = await fetch("/api/admin/login", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ password })
+            });
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    resultado.error || "Error al iniciar sesión."
+                );
+            }
+
+            loginForm.reset();
+            loginMessage.textContent = "";
+            mostrarPanel();
+
+        } catch (error) {
+            loginMessage.textContent = error.message;
+        }
+    });
+
+    document.getElementById("logout-button")
+        .addEventListener("click", async () => {
             try {
-                const respuesta = await fetch("/api/admin/castings", {
+                const respuesta = await fetch("/api/admin/login", {
+                    method: "DELETE",
                     credentials: "same-origin"
                 });
 
-                if (respuesta.ok) {
-                    mostrarPanel();
-                } else {
-                    mostrarLogin();
+                if (!respuesta.ok) {
+                    throw new Error("No se pudo cerrar la sesión.");
                 }
-            } catch (error) {
-                mostrarLogin();
-                loginMessage.textContent =
-                    "No se pudo conectar con el servidor.";
-            }
-        }
 
-        comprobarSesion();
-    </script>
+                mostrarLogin();
+                loginMessage.textContent = "Has cerrado sesión.";
+
+            } catch (error) {
+                panelMessage.textContent = error.message;
+            }
+        });
+
+    async function comprobarSesion() {
+        try {
+            const respuesta = await fetch("/api/admin/castings", {
+                credentials: "same-origin"
+            });
+
+            if (respuesta.ok) {
+                mostrarPanel();
+            } else {
+                mostrarLogin();
+            }
+
+        } catch (error) {
+            mostrarLogin();
+            loginMessage.textContent =
+                "No se pudo conectar con el servidor.";
+        }
+    }
+
+    comprobarSesion();
+</script>
 
 </body>
 </html>
