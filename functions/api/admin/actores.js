@@ -98,6 +98,7 @@ export async function onRequestGet({ request, env }) {
     }
 }
 
+
 export async function onRequestPatch({ request, env }) {
     if (!comprobarOrigen(request)) {
         return Response.json(
@@ -117,6 +118,7 @@ export async function onRequestPatch({ request, env }) {
         const data = await request.json();
         const id = Number(data.id);
         const estado = data.estado;
+        const accion = data.accion;
 
         if (!Number.isInteger(id) || id < 1) {
             return Response.json(
@@ -125,22 +127,42 @@ export async function onRequestPatch({ request, env }) {
             );
         }
 
-        if (!["aprobado", "rechazado"].includes(estado)) {
+        let resultado;
+
+        if (accion === "retirar") {
+            if (estado !== "rechazado") {
+                return Response.json(
+                    { error: "Estado no válido para retirar." },
+                    { status: 400 }
+                );
+            }
+
+            resultado = await env.DB.prepare(`
+                UPDATE actores
+                SET estado = 'rechazado'
+                WHERE id = ? AND estado = 'aprobado'
+            `).bind(id).run();
+
+        } else if (
+            accion === "revisar" &&
+            ["aprobado", "rechazado"].includes(estado)
+        ) {
+            resultado = await env.DB.prepare(`
+                UPDATE actores
+                SET estado = ?
+                WHERE id = ? AND estado = 'pendiente'
+            `).bind(estado, id).run();
+
+        } else {
             return Response.json(
-                { error: "Estado no válido." },
+                { error: "Operación no válida." },
                 { status: 400 }
             );
         }
 
-        const resultado = await env.DB.prepare(`
-            UPDATE actores
-            SET estado = ?
-            WHERE id = ? AND estado = 'pendiente'
-        `).bind(estado, id).run();
-
         if (resultado.meta.changes === 0) {
             return Response.json(
-                { error: "No se encontró un perfil pendiente con ese ID." },
+                { error: "No se encontró un perfil con ese estado." },
                 { status: 404 }
             );
         }
