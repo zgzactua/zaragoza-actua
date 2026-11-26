@@ -203,7 +203,74 @@
             }
         }
 
-        function mostrarPublicaciones(contenedorId, datos, tabla, tipo) {
+        
+function mostrarPublicaciones(contenedorId, datos, tabla, tipo) {
+    const contenedor = document.getElementById(contenedorId);
+    contenedor.replaceChildren();
+
+    if (!datos.length) {
+        contenedor.textContent = "No hay publicaciones pendientes ni aprobadas.";
+        return;
+    }
+
+    datos.forEach(publicacion => {
+        const tarjeta = document.createElement("article");
+        tarjeta.className = "admin-card";
+
+        Object.entries(publicacion).forEach(([campo, valor]) => {
+            if (campo === "estado" || valor === null || valor === "") {
+                return;
+            }
+
+            const parrafo = document.createElement("p");
+            const etiqueta = document.createElement("strong");
+
+            etiqueta.textContent = campo + ": ";
+            parrafo.appendChild(etiqueta);
+            parrafo.appendChild(document.createTextNode(String(valor)));
+
+            tarjeta.appendChild(parrafo);
+        });
+
+        const estadoTexto = document.createElement("p");
+        estadoTexto.textContent = "Estado: " + publicacion.estado;
+        tarjeta.appendChild(estadoTexto);
+
+        if (publicacion.estado === "pendiente") {
+            const aprobar = document.createElement("button");
+            aprobar.className = "approve-button";
+            aprobar.textContent = "Aprobar";
+
+            aprobar.addEventListener("click", () => {
+                cambiarEstado(publicacion.id, "aprobado", tabla, tarjeta);
+            });
+
+            const rechazar = document.createElement("button");
+            rechazar.className = "reject-button";
+            rechazar.textContent = "Rechazar";
+
+            rechazar.addEventListener("click", () => {
+                cambiarEstado(publicacion.id, "rechazado", tabla, tarjeta);
+            });
+
+            tarjeta.append(aprobar, rechazar);
+
+        } else if (publicacion.estado === "aprobado") {
+            const retirar = document.createElement("button");
+            retirar.className = "reject-button";
+            retirar.textContent = "Retirar publicación";
+
+            retirar.addEventListener("click", () => {
+                cambiarEstado(publicacion.id, "rechazado", tabla, tarjeta, "retirar");
+            });
+
+            tarjeta.appendChild(retirar);
+        }
+
+        contenedor.appendChild(tarjeta);
+    });
+}
+
             const contenedor = document.getElementById(contenedorId);
             contenedor.replaceChildren();
 
