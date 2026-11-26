@@ -322,44 +322,50 @@ function mostrarPublicaciones(contenedorId, datos, tabla, tipo) {
             });
         }
 
-        async function cambiarEstado(id, estado, tabla, tarjeta) {
-            const accion = estado === "aprobado" ? "aprobar" : "rechazar";
+       async function cambiarEstado(id, estado, tabla, tarjeta, accionPersonalizada = null) {
+    const accion = accionPersonalizada ||
+        (estado === "aprobado" ? "aprobar" : "rechazar");
 
-            if (!confirm(`¿Seguro que quieres ${accion} esta publicación?`)) {
-                return;
-            }
+    const mensajeConfirmacion = accion === "retirar"
+        ? "¿Seguro que quieres retirar esta publicación de la web? Se conservará en la base de datos."
+        : `¿Seguro que quieres ${accion} esta publicación?`;
 
-            try {
-                const respuesta = await fetch(`/api/admin/${tabla}`, {
-                    method: "PATCH",
-                    credentials: "same-origin",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ id, estado })
-                });
+    if (!confirm(mensajeConfirmacion)) {
+        return;
+    }
 
-                const resultado = await respuesta.json();
+    try {
+        const respuesta = await fetch(`/api/admin/${tabla}`, {
+            method: "PATCH",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ id, estado })
+        });
 
-                if (!respuesta.ok) {
-                    throw new Error(resultado.error || "No se pudo actualizar.");
-                }
+        const resultado = await respuesta.json();
 
-                tarjeta.remove();
-                panelMessage.textContent =
-                    `Publicación ${estado === "aprobado" ? "aprobada" : "rechazada"}.`;
-
-                const contenedor = document.getElementById(`${tabla}-list`);
-
-                if (!contenedor.querySelector(".admin-card")) {
-                    contenedor.textContent = "No hay publicaciones pendientes.";
-                }
-
-            } catch (error) {
-                panelMessage.textContent = error.message;
-            }
+        if (!respuesta.ok) {
+            throw new Error(resultado.error || "No se pudo actualizar.");
         }
 
+        tarjeta.remove();
+
+        panelMessage.textContent = accion === "retirar"
+            ? "Publicación retirada de la web. El registro se conserva en la base de datos."
+            : `Publicación ${estado === "aprobado" ? "aprobada" : "rechazada"}.`;
+
+        const contenedor = document.getElementById(`${tabla}-list`);
+
+        if (!contenedor.querySelector(".admin-card")) {
+            contenedor.textContent = "No hay publicaciones pendientes ni aprobadas.";
+        }
+
+    } catch (error) {
+        panelMessage.textContent = error.message;
+    }
+}
         function mostrarPanel() {
             loginSection.hidden = true;
             panelSection.hidden = false;
