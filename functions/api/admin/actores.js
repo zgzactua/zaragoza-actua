@@ -125,7 +125,7 @@ export async function onRequestPatch({ request, env }) {
         const resultado = await env.DB.prepare(`
             UPDATE actores
             SET estado = ?
-            WHERE id = ? AND estado = 'pendiente'
+            WHERE id = ? AND estado IN ('pendiente', 'aprobado')
         `).bind(estado, id).run();
 
         if (resultado.meta.changes === 0) {
