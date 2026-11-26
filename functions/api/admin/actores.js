@@ -69,12 +69,22 @@ export async function onRequestGet({ request, env }) {
     }
 
     try {
+        const estado = new URL(request.url)
+            .searchParams.get("estado") || "pendiente";
+
+        if (!["pendiente", "aprobado"].includes(estado)) {
+            return Response.json(
+                { error: "Estado no válido." },
+                { status: 400 }
+            );
+        }
+
         const { results } = await env.DB.prepare(`
             SELECT *
             FROM actores
-            WHERE estado IN 'pendiente'
+            WHERE estado = ?
             ORDER BY id DESC
-        `).all();
+        `).bind(estado).all();
 
         return Response.json(results, {
             headers: { "Cache-Control": "no-store" }
@@ -125,7 +135,7 @@ export async function onRequestPatch({ request, env }) {
         const resultado = await env.DB.prepare(`
             UPDATE actores
             SET estado = ?
-            WHERE id = ? AND estado IN 'pendiente'
+            WHERE id = ? AND estado = 'pendiente'
         `).bind(estado, id).run();
 
         if (resultado.meta.changes === 0) {
