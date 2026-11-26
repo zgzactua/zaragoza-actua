@@ -72,7 +72,7 @@ export async function onRequestGet({ request, env }) {
         const { results } = await env.DB.prepare(`
             SELECT *
             FROM castings
-            WHERE estado IN ('pendiente', 'aprobado')
+            WHERE estado IN 'pendiente'
             ORDER BY id DESC
         `).all();
 
@@ -125,7 +125,7 @@ export async function onRequestPatch({ request, env }) {
         const resultado = await env.DB.prepare(`
             UPDATE castings
             SET estado = ?
-            WHERE id = ? AND estado IN ('pendiente', 'aprobado')
+            WHERE id = ? AND estado IN 'pendiente'
         `).bind(estado, id).run();
 
         if (resultado.meta.changes === 0) {
