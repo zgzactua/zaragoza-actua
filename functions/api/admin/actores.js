@@ -72,7 +72,7 @@ export async function onRequestGet({ request, env }) {
         const { results } = await env.DB.prepare(`
             SELECT *
             FROM actores
-            WHERE estado = 'pendiente'
+            WHERE estado IN ('pendiente', 'aprobado')
             ORDER BY id DESC
         `).all();
 
