@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://zaragoza-actua.pages.dev/sitemap.xml
